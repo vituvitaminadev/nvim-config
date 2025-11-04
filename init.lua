@@ -17,6 +17,22 @@ vim.opt.scrolloff = 8
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
+vim.diagnostic.config({
+	virtual_text = true, -- mostra erro no final da linha
+	signs = true,       -- mostra símbolos na coluna lateral
+	update_in_insert = false,
+	underline = true,
+	severity_sort = true,
+	float = {
+		focusable = false,
+		style = 'minimal',
+		border = 'rounded',
+		source = true,
+		header = '',
+		prefix = '',
+	},
+})
+
 vim.api.nvim_create_autocmd('TextYankPost', {
 	desc = 'Highlight when yanking text',
 	group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
