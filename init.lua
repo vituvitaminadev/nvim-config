@@ -17,6 +17,9 @@ vim.opt.scrolloff = 8
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
 
+vim.opt.clipboard = "unnamedplus"
+vim.wo.relativenumber = true
+
 vim.diagnostic.config({
 	virtual_text = true, -- mostra erro no final da linha
 	signs = true,       -- mostra símbolos na coluna lateral

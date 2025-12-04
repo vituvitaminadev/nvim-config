@@ -9,9 +9,9 @@ return {
 		config = function()
 			require('telescope').setup {
 				pickers = {
-					find_files = {
-						theme = "ivy",
-					}
+					-- find_files = {
+					-- 	theme = "ivy",
+					-- }
 				},
 				extensions = {
 					fzf = {}
