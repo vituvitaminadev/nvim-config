@@ -16,6 +16,16 @@ vim.keymap.set("n", "-", "<cmd>Oil<CR>")
 vim.opt.scrolloff = 8
 vim.opt.hlsearch = false
 vim.opt.incsearch = true
+vim.opt.clipboard = "unnamedplus"
+
+vim.diagnostic.config({
+	virtual_text = true,
+	signs = true,
+	update_in_insert = false,
+	underline = true,
+	severity_sort = false,
+	float = true,
+})
 
 vim.api.nvim_create_autocmd('TextYankPost', {
 	desc = 'Highlight when yanking text',
