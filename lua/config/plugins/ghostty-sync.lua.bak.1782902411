@@ -1,0 +1,78 @@
+-- Sync Neovim colorscheme changes to Ghostty and Fish
+-- Updates ~/.config/ghostty/theme.conf and runs `fish_config theme choose`
+
+return {
+  {
+    "ghostty-theme-sync",
+    virtual = true,
+    lazy = false,
+    config = function()
+      local theme_conf = vim.fn.expand("~/.config/ghostty/theme.conf")
+      local lazy_path = vim.fn.stdpath("data") .. "/lazy"
+
+      local extras_path = vim.fn.expand("~/.config/ghostty/extras")
+
+      local function find_ghostty_extra(colorscheme)
+        -- Check user extras first (~/.config/ghostty/extras/)
+        local user_extra = extras_path .. "/" .. colorscheme
+        if vim.fn.filereadable(user_extra) == 1 then
+          return user_extra
+        end
+
+        -- Then search lazy plugins for a ghostty extra
+        local patterns = {
+          lazy_path .. "/*/extras/ghostty/" .. colorscheme,
+          lazy_path .. "/**/extras/ghostty/" .. colorscheme,
+        }
+        for _, pattern in ipairs(patterns) do
+          local matches = vim.fn.glob(pattern, false, true)
+          if #matches > 0 then
+            return matches[1]
+          end
+        end
+        return nil
+      end
+
+      local function sync_ghostty(colorscheme)
+        local extra = find_ghostty_extra(colorscheme)
+        if not extra then
+          return
+        end
+
+        -- Read the extra file
+        local lines = {}
+        for line in io.lines(extra) do
+          table.insert(lines, line)
+        end
+
+        -- Write to theme.conf
+        local file = io.open(theme_conf, "w")
+        if not file then
+          return
+        end
+        for _, line in ipairs(lines) do
+          file:write(line .. "\n")
+        end
+        file:close()
+
+        -- Send SIGUSR2 to Ghostty to hot-reload config
+        vim.fn.jobstart("pkill -USR2 ghostty", { detach = true })
+      end
+
+      local function sync_fish(colorscheme)
+        local fish_theme = vim.fn.expand("~/.config/fish/themes/" .. colorscheme .. ".theme")
+        if vim.fn.filereadable(fish_theme) == 1 then
+          vim.fn.jobstart("fish -c 'echo y | fish_config theme save " .. colorscheme .. "'", { detach = true })
+        end
+      end
+
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        group = vim.api.nvim_create_augroup("GhosttyThemeSync", { clear = true }),
+        callback = function(ev)
+          sync_ghostty(ev.match)
+          sync_fish(ev.match)
+        end,
+      })
+    end,
+  },
+}
